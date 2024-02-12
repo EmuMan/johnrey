@@ -4,10 +4,17 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public enum TMovementState
+    public enum TContactState
     {
         GROUNDED,
         AIRBORNE,
+    }
+
+    public enum TMovementState
+    {
+        WALKING,
+        JUMPING,
+        FALLING,
     }
 
     public enum TInputDirection
@@ -17,17 +24,28 @@ public class PlayerController : MonoBehaviour
         NONE,
     }
 
-    public float Acceleration;
-    public float JumpStrength;
+    public float GroundAcceleration;
+    public float AirAcceleration;
+    public float JumpStrengthInitial;
+    public float JumpStrengthContinued;
+    public float MaxJumpTime;
+    public float JumpBuffer;
+    public float CoyoteTime;
     public float MaxMovementSpeed;
     public float SlowdownRate;
 
+
+    public TContactState ContactState { get; private set; }
     public TMovementState MovementState { get; private set; }
     public TInputDirection InputDirection { get; private set; }
 
     private Rigidbody2D PlayerRigidbody;
     private int CollisionCounter;
     private float LastHorizontalInput;
+    private float JumpTimer;
+    private bool JumpPressedLastUpdate;
+    private float TimeSinceJumpLastPressed; // for jump buffering
+    private float TimeSinceLastGrounded; // for coyote time
 
     // Start is called before the first frame update
     void Start()
@@ -36,14 +54,22 @@ public class PlayerController : MonoBehaviour
         CollisionCounter = 0;
         LastHorizontalInput = 0.0f;
         InputDirection = TInputDirection.NONE;
+        JumpTimer = 0.0f;
+        JumpPressedLastUpdate = false;
+        TimeSinceJumpLastPressed = 0.0f;
+        TimeSinceLastGrounded = 0.0f;
     }
 
     // Update is called once per frame
     void Update()
     {
+        // these calls have to happen in this order due to dependency
         CalculateInputDirection();
+        CalculateContactState();
+        CalculateMovementState();
         HandleSlowdown();
         HandleInput();
+        HandleJump();
     }
 
     void CalculateInputDirection()
@@ -85,7 +111,8 @@ public class PlayerController : MonoBehaviour
         var newXVel = xVel;
         if (Mathf.Abs(xVel) < MaxMovementSpeed || Mathf.Sign(xVel) != Mathf.Sign(hInput))
         {
-            var delta = Acceleration * hInput * Time.deltaTime;
+            var accel = ContactState == TContactState.GROUNDED ? GroundAcceleration : AirAcceleration;
+            var delta = accel * hInput * Time.deltaTime;
             newXVel += delta;
             var xVelIsOver = Mathf.Abs(newXVel) > MaxMovementSpeed;
             if (!xVelWasOver && xVelIsOver)
@@ -94,14 +121,30 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        var newYVel = PlayerRigidbody.velocity.y;
-        if (MovementState == TMovementState.GROUNDED && Input.GetAxis("Jump") == 1.0)
+        PlayerRigidbody.velocity = new(
+            newXVel,
+            PlayerRigidbody.velocity.y
+        );
+    }
+
+    void HandleJump()
+    {
+        var origYVel = PlayerRigidbody.velocity.y;
+        var newYVel = origYVel;
+        if (MovementState == TMovementState.JUMPING)
         {
-            newYVel = JumpStrength;
+            if (ContactState == TContactState.GROUNDED)
+            {
+                newYVel = JumpStrengthInitial;
+            }
+            else
+            {
+                newYVel += JumpStrengthContinued * Time.deltaTime;
+            }
         }
 
         PlayerRigidbody.velocity = new(
-            newXVel,
+            PlayerRigidbody.velocity.x,
             newYVel
         );
     }
@@ -109,7 +152,7 @@ public class PlayerController : MonoBehaviour
     void HandleSlowdown()
     {
         var origVelocity = PlayerRigidbody.velocity.x;
-        if (origVelocity == 0.0f)
+        if (origVelocity == 0.0f || ContactState == TContactState.AIRBORNE)
         {
             return;
         }
@@ -129,24 +172,69 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         CollisionCounter++;
-        CalculateMovementState();
+        CalculateContactState();
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
         CollisionCounter--;
-        CalculateMovementState();
+        CalculateContactState();
+    }
+
+    private void CalculateContactState()
+    {
+        TimeSinceLastGrounded += Time.deltaTime;
+        if (CollisionCounter > 0)
+        {
+            ContactState = TContactState.GROUNDED;
+            TimeSinceLastGrounded = 0.0f;
+        }
+        else if (TimeSinceLastGrounded < CoyoteTime)
+        {
+            ContactState = TContactState.GROUNDED;
+        }
+        else
+        {
+            ContactState = TContactState.AIRBORNE;
+        }
     }
 
     private void CalculateMovementState()
     {
-        if (CollisionCounter > 0)
+        JumpTimer += Time.deltaTime;
+        TimeSinceJumpLastPressed += Time.deltaTime;
+        var jumpHeld = Input.GetAxis("Jump") == 1.0;
+        if (jumpHeld)
         {
-            MovementState = TMovementState.GROUNDED;
+            if (!JumpPressedLastUpdate)
+            {
+                TimeSinceJumpLastPressed = 0.0f;
+            }
+
+            if (ContactState == TContactState.GROUNDED && TimeSinceJumpLastPressed < JumpBuffer)
+            {
+                // the player pressed the jump button on the ground
+                MovementState = TMovementState.JUMPING;
+                JumpTimer = 0.0f;
+                // jumping should kill coyote time and buffer
+                TimeSinceLastGrounded = CoyoteTime;
+                TimeSinceJumpLastPressed = JumpBuffer;
+                return;
+            }
+            else if (JumpTimer < MaxJumpTime && MovementState == TMovementState.JUMPING)
+            {
+                // the player is holding the jump button in the air
+                MovementState = TMovementState.JUMPING;
+                return;
+            }
+
+            JumpPressedLastUpdate = true;
         }
         else
         {
-            MovementState = TMovementState.AIRBORNE;
+            JumpPressedLastUpdate = false;
         }
+        MovementState = ContactState == TContactState.GROUNDED ?
+            TMovementState.WALKING : TMovementState.FALLING;
     }
 }
