@@ -388,7 +388,7 @@ MonoBehaviour:
   Acceleration: 100
   JumpStrength: 5
   MaxMovementSpeed: 3
-  SlowdownRate: 20
+  SlowdownRate: 30
 --- !u!1001 &1940725718
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -400,6 +400,10 @@ PrefabInstance:
     - target: {fileID: -8653719598885068355, guid: 1a5f9343976b1ac4d9efb64383837fce, type: 3}
       propertyPath: m_Name
       value: Bow
+      objectReference: {fileID: 0}
+    - target: {fileID: -8653719598885068355, guid: 1a5f9343976b1ac4d9efb64383837fce, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7552582706839291426, guid: 1a5f9343976b1ac4d9efb64383837fce, type: 3}
       propertyPath: m_LocalScale.x
@@ -462,6 +466,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2034410105836459059, guid: 5d8961b92bc86e94a890abd985040e1e, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: a51853ab849579d42acf523c7eacadf3, type: 2}
     - target: {fileID: 7486397280665513023, guid: 5d8961b92bc86e94a890abd985040e1e, type: 3}
       propertyPath: m_Name
       value: cczero
