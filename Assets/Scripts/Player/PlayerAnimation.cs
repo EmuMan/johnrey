@@ -7,21 +7,29 @@ public class PlayerAnimation : MonoBehaviour
 
     private Animator PlayerAnimator;
     private PlayerMovement MovementController;
+    private Rigidbody2D PlayerRigidbody;
 
     private float InitialXScale;
-    private PlayerMovement.TMovementState PreviousMovementState;
+    private float TimeSinceLastGrounded;
 
     // Start is called before the first frame update
     void Start()
     {
         PlayerAnimator = GetComponent<Animator>();
         MovementController = GetComponent<PlayerMovement>();
+        PlayerRigidbody = GetComponent<Rigidbody2D>();
         InitialXScale = transform.localScale.x;
-        PreviousMovementState = PlayerMovement.TMovementState.IDLE;
+        TimeSinceLastGrounded = 0.0f;
     }
 
     // Update is called once per frame
     void Update()
+    {
+        SetCharacterDirection();
+        UpdateAnimatorParameters();
+    }
+
+    void SetCharacterDirection()
     {
         var xScale = transform.localScale.x;
         switch (MovementController.InputDirection)
@@ -38,47 +46,26 @@ public class PlayerAnimation : MonoBehaviour
             transform.localScale.y,
             transform.localScale.z
         );
-
-        if (!PreviousMovementStateIsSame())
-        {
-            switch (MovementController.MovementState)
-            {
-                case PlayerMovement.TMovementState.IDLE:
-                    PlayerAnimator.SetTrigger("Idle");
-                    Debug.Log("Setting Idle...");
-                    break;
-                case PlayerMovement.TMovementState.WALKING:
-                    PlayerAnimator.SetTrigger("Walk");
-                    Debug.Log("Setting Walk...");
-                    break;
-                case PlayerMovement.TMovementState.JUMPING:
-                case PlayerMovement.TMovementState.FALLING:
-                    if (!PlayerAnimator.GetCurrentAnimatorStateInfo(0).IsName("John Jumping"))
-                    {
-                        PlayerAnimator.SetTrigger("Jump");
-                        Debug.Log("Setting Jump...");
-                    }
-                    break;
-            }
-        }
-
-        PreviousMovementState = MovementController.MovementState;
     }
 
-    bool PreviousMovementStateIsSame()
+    void UpdateAnimatorParameters()
     {
-        switch (PreviousMovementState)
+        TimeSinceLastGrounded += Time.deltaTime;
+        bool isAirborne;
+        if (MovementController.MovementState == PlayerMovement.TMovementState.JUMPING)
         {
-            case PlayerMovement.TMovementState.JUMPING:
-            case PlayerMovement.TMovementState.FALLING:
-                return MovementController.MovementState == PlayerMovement.TMovementState.JUMPING ||
-                    MovementController.MovementState == PlayerMovement.TMovementState.FALLING;
-            case PlayerMovement.TMovementState.IDLE:
-            case PlayerMovement.TMovementState.WALKING:
-                return MovementController.MovementState == PreviousMovementState;
-            default:
-                break;
+            isAirborne = true;
         }
-        return false;
+        else if (MovementController.MovementState != PlayerMovement.TMovementState.FALLING)
+        {
+            isAirborne = false;
+            TimeSinceLastGrounded = 0.0f;
+        }
+        else
+        {
+            isAirborne = TimeSinceLastGrounded > 0.1f;
+        }
+        PlayerAnimator.SetBool("Is Airborne", isAirborne);
+        PlayerAnimator.SetFloat("X-Speed", Mathf.Abs(PlayerRigidbody.velocity.x));
     }
 }
