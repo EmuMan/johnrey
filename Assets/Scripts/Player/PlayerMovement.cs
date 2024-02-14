@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
     public enum TContactState
     {
@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
 
     public enum TMovementState
     {
+        IDLE,
         WALKING,
         JUMPING,
         FALLING,
@@ -234,7 +235,15 @@ public class PlayerController : MonoBehaviour
         {
             JumpPressedLastUpdate = false;
         }
-        MovementState = ContactState == TContactState.GROUNDED ?
-            TMovementState.WALKING : TMovementState.FALLING;
+
+        if (ContactState == TContactState.GROUNDED)
+        {
+            MovementState = PlayerRigidbody.velocity.x == 0.0f ?
+                TMovementState.IDLE : TMovementState.WALKING;
+        }
+        else
+        {
+            MovementState = TMovementState.FALLING;
+        }
     }
 }
