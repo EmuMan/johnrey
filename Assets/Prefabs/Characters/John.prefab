@@ -521,8 +521,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.004647225, y: 11.309215}
-  m_Size: {x: 4.3731203, y: 17.19427}
+  m_Offset: {x: 0.004647225, y: 11.5}
+  m_Size: {x: 4.3731203, y: 16.75}
   m_Direction: 0
 --- !u!50 &8295199691142516604
 Rigidbody2D:
@@ -573,6 +573,7 @@ MonoBehaviour:
   CoyoteTime: 0.1
   WallJumpStrength: 4
   MaxMovementSpeed: 3
+  MaxWallSlideSpeed: 1.5
   NormalSlowdownRate: 30
   IcySlowdownRate: 1
   GroundCollider: {fileID: 1952782936659486700}
@@ -1807,7 +1808,7 @@ CircleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 4.19}
+  m_Offset: {x: 0, y: 4.65}
   serializedVersion: 2
   m_Radius: 2
 --- !u!1 &7364436831784169010

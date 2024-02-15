@@ -49,6 +49,7 @@ public class PlayerMovement : MonoBehaviour
     public float CoyoteTime;
     public float WallJumpStrength;
     public float MaxMovementSpeed;
+    public float MaxWallSlideSpeed;
     public float NormalSlowdownRate;
     public float IcySlowdownRate;
 
@@ -200,23 +201,31 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleSlowdown()
     {
-        var origVelocity = PlayerRigidbody.velocity.x;
-        if (origVelocity == 0.0f || ContactState != TContactState.GROUNDED)
+        var origXVel = PlayerRigidbody.velocity.x;
+        var newXVel = origXVel;
+        if (origXVel != 0.0f && ContactState == TContactState.GROUNDED)
         {
-            return;
+            var slowdownRate = GroundType == TGroundType.NORMAL ?
+                NormalSlowdownRate : IcySlowdownRate;
+            var amount = slowdownRate * Mathf.Sign(origXVel) * Time.deltaTime;
+            newXVel = PlayerRigidbody.velocity.x - amount;
+            if (Mathf.Sign(origXVel) != Mathf.Sign(newXVel))
+            {
+                // the sign flipped, so the velocity passed 0 and should be set there
+                newXVel = 0.0f;
+            }
         }
-        var slowdownRate = GroundType == TGroundType.NORMAL ?
-            NormalSlowdownRate : IcySlowdownRate;
-        var amount = slowdownRate * Mathf.Sign(origVelocity) * Time.deltaTime;
-        var newXVel = PlayerRigidbody.velocity.x - amount;
-        if (Mathf.Sign(origVelocity) != Mathf.Sign(newXVel))
+
+        var newYVel = PlayerRigidbody.velocity.y;
+        if (ContactState == TContactState.LEFT_WALL && FacingDirection == TFacingDirection.LEFT ||
+            ContactState == TContactState.RIGHT_WALL && FacingDirection == TFacingDirection.RIGHT)
         {
-            // the sign flipped, so the velocity passed 0 and should be set there
-            newXVel = 0.0f;
+            newYVel = Mathf.Max(newYVel, -MaxWallSlideSpeed);
         }
+
         PlayerRigidbody.velocity = new(
             newXVel,
-            PlayerRigidbody.velocity.y
+            newYVel
         );
     }
 
