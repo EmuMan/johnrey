@@ -2,16 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
     public enum TContactState
     {
         GROUNDED,
         AIRBORNE,
+        LEFT_WALL,
+        RIGHT_WALL,
     }
 
     public enum TMovementState
     {
+        IDLE,
         WALKING,
         JUMPING,
         FALLING,
@@ -24,40 +27,58 @@ public class PlayerController : MonoBehaviour
         NONE,
     }
 
-    public float GroundAcceleration;
+    public enum TGroundType
+    {
+        NORMAL,
+        ICY,
+    }
+
+    public float NormalGroundAcceleration;
+    public float IcyGroundAcceleration;
     public float AirAcceleration;
     public float JumpStrengthInitial;
     public float JumpStrengthContinued;
     public float MaxJumpTime;
     public float JumpBuffer;
     public float CoyoteTime;
+    public float WallJumpStrength;
     public float MaxMovementSpeed;
-    public float SlowdownRate;
+    public float NormalSlowdownRate;
+    public float IcySlowdownRate;
 
+    public Collider2D GroundCollider;
+    public Collider2D LeftCollider;
+    public Collider2D RightCollider;
 
     public TContactState ContactState { get; private set; }
     public TMovementState MovementState { get; private set; }
     public TInputDirection InputDirection { get; private set; }
+    public TGroundType GroundType { get; private set; }
 
     private Rigidbody2D PlayerRigidbody;
-    private int CollisionCounter;
     private float LastHorizontalInput;
     private float JumpTimer;
     private bool JumpPressedLastUpdate;
     private float TimeSinceJumpLastPressed; // for jump buffering
     private float TimeSinceLastGrounded; // for coyote time
 
+    private int GroundLayerMask;
+    private int NormalGroundLayerMask;
+    private int IcyGroundLayerMask;
+
     // Start is called before the first frame update
     void Start()
     {
         PlayerRigidbody = GetComponent<Rigidbody2D>();
-        CollisionCounter = 0;
         LastHorizontalInput = 0.0f;
         InputDirection = TInputDirection.NONE;
         JumpTimer = 0.0f;
         JumpPressedLastUpdate = false;
         TimeSinceJumpLastPressed = 0.0f;
         TimeSinceLastGrounded = 0.0f;
+        GroundLayerMask = LayerMask.GetMask("Icy Ground", "Normal Ground");
+        NormalGroundLayerMask = LayerMask.GetMask("Normal Ground");
+        IcyGroundLayerMask = LayerMask.GetMask("Icy Ground");
     }
 
     // Update is called once per frame
@@ -111,7 +132,12 @@ public class PlayerController : MonoBehaviour
         var newXVel = xVel;
         if (Mathf.Abs(xVel) < MaxMovementSpeed || Mathf.Sign(xVel) != Mathf.Sign(hInput))
         {
-            var accel = ContactState == TContactState.GROUNDED ? GroundAcceleration : AirAcceleration;
+            float accel = AirAcceleration;
+            if (ContactState == TContactState.GROUNDED)
+            {
+                accel = GroundType == TGroundType.NORMAL ?
+                    NormalGroundAcceleration : IcyGroundAcceleration;
+            }
             var delta = accel * hInput * Time.deltaTime;
             newXVel += delta;
             var xVelIsOver = Mathf.Abs(newXVel) > MaxMovementSpeed;
@@ -130,21 +156,35 @@ public class PlayerController : MonoBehaviour
     void HandleJump()
     {
         var origYVel = PlayerRigidbody.velocity.y;
+        var newXVel = PlayerRigidbody.velocity.x;
         var newYVel = origYVel;
         if (MovementState == TMovementState.JUMPING)
         {
-            if (ContactState == TContactState.GROUNDED)
+            if (ContactState == TContactState.AIRBORNE)
             {
-                newYVel = JumpStrengthInitial;
+                newYVel += JumpStrengthContinued * Time.deltaTime;
             }
             else
             {
-                newYVel += JumpStrengthContinued * Time.deltaTime;
+                switch (ContactState)
+                {
+                    case TContactState.GROUNDED:
+                        newYVel = JumpStrengthInitial;
+                        break;
+                    case TContactState.LEFT_WALL:
+                        newXVel = WallJumpStrength;
+                        newYVel = JumpStrengthInitial;
+                        break;
+                    case TContactState.RIGHT_WALL:
+                        newXVel = -WallJumpStrength;
+                        newYVel = JumpStrengthInitial;
+                        break;
+                }
             }
         }
 
         PlayerRigidbody.velocity = new(
-            PlayerRigidbody.velocity.x,
+            newXVel,
             newYVel
         );
     }
@@ -152,11 +192,13 @@ public class PlayerController : MonoBehaviour
     void HandleSlowdown()
     {
         var origVelocity = PlayerRigidbody.velocity.x;
-        if (origVelocity == 0.0f || ContactState == TContactState.AIRBORNE)
+        if (origVelocity == 0.0f || ContactState != TContactState.GROUNDED)
         {
             return;
         }
-        var amount = SlowdownRate * Mathf.Sign(origVelocity) * Time.deltaTime;
+        var slowdownRate = GroundType == TGroundType.NORMAL ?
+            NormalSlowdownRate : IcySlowdownRate;
+        var amount = slowdownRate * Mathf.Sign(origVelocity) * Time.deltaTime;
         var newXVel = PlayerRigidbody.velocity.x - amount;
         if (Mathf.Sign(origVelocity) != Mathf.Sign(newXVel))
         {
@@ -169,22 +211,23 @@ public class PlayerController : MonoBehaviour
         );
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        CollisionCounter++;
-        CalculateContactState();
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        CollisionCounter--;
-        CalculateContactState();
-    }
-
     private void CalculateContactState()
     {
         TimeSinceLastGrounded += Time.deltaTime;
-        if (CollisionCounter > 0)
+
+        var groundCollision = false;
+        if (GroundCollider.IsTouchingLayers(NormalGroundLayerMask))
+        {
+            groundCollision = true;
+            GroundType = TGroundType.NORMAL;
+        }
+        else if (GroundCollider.IsTouchingLayers(IcyGroundLayerMask))
+        {
+            groundCollision = true;
+            GroundType = TGroundType.ICY;
+        }
+
+        if (groundCollision)
         {
             ContactState = TContactState.GROUNDED;
             TimeSinceLastGrounded = 0.0f;
@@ -195,7 +238,18 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            ContactState = TContactState.AIRBORNE;
+            if (LeftCollider.IsTouchingLayers(GroundLayerMask))
+            {
+                ContactState = TContactState.LEFT_WALL;
+            }
+            else if (RightCollider.IsTouchingLayers(GroundLayerMask))
+            {
+                ContactState = TContactState.RIGHT_WALL;
+            }
+            else
+            {
+                ContactState = TContactState.AIRBORNE;
+            }
         }
     }
 
@@ -211,7 +265,7 @@ public class PlayerController : MonoBehaviour
                 TimeSinceJumpLastPressed = 0.0f;
             }
 
-            if (ContactState == TContactState.GROUNDED && TimeSinceJumpLastPressed < JumpBuffer)
+            if (ContactState != TContactState.AIRBORNE && TimeSinceJumpLastPressed < JumpBuffer)
             {
                 // the player pressed the jump button on the ground
                 MovementState = TMovementState.JUMPING;
@@ -234,7 +288,15 @@ public class PlayerController : MonoBehaviour
         {
             JumpPressedLastUpdate = false;
         }
-        MovementState = ContactState == TContactState.GROUNDED ?
-            TMovementState.WALKING : TMovementState.FALLING;
+
+        if (ContactState == TContactState.GROUNDED)
+        {
+            MovementState = PlayerRigidbody.velocity.x == 0.0f ?
+                TMovementState.IDLE : TMovementState.WALKING;
+        }
+        else
+        {
+            MovementState = TMovementState.FALLING;
+        }
     }
 }
