@@ -60,6 +60,12 @@ public class PlayerAnimation : MonoBehaviour
             isAirborne = TimeSinceLastGrounded > 0.1f;
         }
         PlayerAnimator.SetBool("Is Airborne", isAirborne);
+
+        var isOnWall = MovementController.ContactState == PlayerMovement.TContactState.LEFT_WALL ||
+            MovementController.ContactState == PlayerMovement.TContactState.RIGHT_WALL;
+        PlayerAnimator.SetBool("Is On Wall", isOnWall);
+
         PlayerAnimator.SetFloat("X-Speed", Mathf.Abs(PlayerRigidbody.velocity.x));
+
     }
 }
