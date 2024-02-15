@@ -462,6 +462,7 @@ GameObject:
   - component: {fileID: 2586094294328354449}
   - component: {fileID: 7905231125591921941}
   - component: {fileID: 1589015365047023337}
+  - component: {fileID: 3214510484558168174}
   m_Layer: 0
   m_Name: John
   m_TagString: Untagged
@@ -621,6 +622,21 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3214510484558168174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1223933909327466227}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fa88f9489fee40258ab6849dd72fe0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireball: {fileID: 1744752541207642434, guid: 50d7208877a314015a85d8317ce8850d, type: 3}
+  shotPoint: {fileID: 5486993212251488498}
+  firePower: 10
 --- !u!1 &1626544674155448512
 GameObject:
   m_ObjectHideFlags: 0
