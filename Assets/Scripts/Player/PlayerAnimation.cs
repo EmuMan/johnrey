@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerAnimation : MonoBehaviour
 {
 
+    private GameObject PlayerSprite;
     private Animator PlayerAnimator;
     private PlayerMovement MovementController;
     private Rigidbody2D PlayerRigidbody;
@@ -15,10 +16,11 @@ public class PlayerAnimation : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        PlayerAnimator = GetComponent<Animator>();
+        PlayerSprite = transform.GetChild(0).gameObject;
+        PlayerAnimator = PlayerSprite.GetComponent<Animator>();
         MovementController = GetComponent<PlayerMovement>();
         PlayerRigidbody = GetComponent<Rigidbody2D>();
-        InitialXScale = transform.localScale.x;
+        InitialXScale = PlayerSprite.transform.localScale.x;
         TimeSinceLastGrounded = 0.0f;
     }
 
@@ -31,20 +33,12 @@ public class PlayerAnimation : MonoBehaviour
 
     void SetCharacterDirection()
     {
-        var xScale = transform.localScale.x;
-        switch (MovementController.InputDirection)
-        {
-            case PlayerMovement.TInputDirection.LEFT:
-                xScale = -InitialXScale;
-                break;
-            case PlayerMovement.TInputDirection.RIGHT:
-                xScale = InitialXScale;
-                break;
-        }
-        transform.localScale = new(
+        var xScale = MovementController.FacingDirection == PlayerMovement.TFacingDirection.LEFT ?
+            -InitialXScale : InitialXScale;
+        PlayerSprite.transform.localScale = new(
             xScale,
-            transform.localScale.y,
-            transform.localScale.z
+            PlayerSprite.transform.localScale.y,
+            PlayerSprite.transform.localScale.z
         );
     }
 

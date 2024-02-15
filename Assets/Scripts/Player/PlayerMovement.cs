@@ -27,6 +27,12 @@ public class PlayerMovement : MonoBehaviour
         NONE,
     }
 
+    public enum TFacingDirection
+    {
+        LEFT,
+        RIGHT,
+    }
+
     public enum TGroundType
     {
         NORMAL,
@@ -53,6 +59,7 @@ public class PlayerMovement : MonoBehaviour
     public TContactState ContactState { get; private set; }
     public TMovementState MovementState { get; private set; }
     public TInputDirection InputDirection { get; private set; }
+    public TFacingDirection FacingDirection { get; private set; }
     public TGroundType GroundType { get; private set; }
 
     private Rigidbody2D PlayerRigidbody;
@@ -101,6 +108,7 @@ public class PlayerMovement : MonoBehaviour
             if (hInput > LastHorizontalInput || hInput == 1.0f)
             {
                 InputDirection = TInputDirection.RIGHT;
+                FacingDirection = TFacingDirection.RIGHT;
             }
             else
             {
@@ -112,6 +120,7 @@ public class PlayerMovement : MonoBehaviour
             if (hInput < LastHorizontalInput || hInput == -1.0f)
             {
                 InputDirection = TInputDirection.LEFT;
+                FacingDirection = TFacingDirection.LEFT;
             }
             else
             {
