@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class FireballCollision : MonoBehaviour
+public class ProjectileCollision : MonoBehaviour
 {
   
 
@@ -15,6 +16,11 @@ public class FireballCollision : MonoBehaviour
     }
 
     void OnCollisionEnter2D(Collision2D collision) {
-        Destroy(gameObject);
+        if (!collision.gameObject.CompareTag("John")) {
+            Destroy(gameObject);
+        }
+        else {
+            SceneManager.LoadScene(3);
+        }
     }
 }

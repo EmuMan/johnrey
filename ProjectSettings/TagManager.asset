@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Catodemon
+  - John
   layers:
   - Default
   - TransparentFX
@@ -17,10 +19,10 @@ TagManager:
   - 
   - Normal Ground
   - Icy Ground
-  - 
-  - 
-  - 
-  - 
+  - John
+  - Arrow
+  - Catodemon
+  - Fireball
   - 
   - 
   - 
