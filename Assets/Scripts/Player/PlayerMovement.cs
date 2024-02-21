@@ -77,6 +77,7 @@ public class PlayerMovement : MonoBehaviour
     private bool JumpPressedLastUpdate;
     private float TimeSinceJumpLastPressed; // for jump buffering
     private float TimeSinceLastGrounded; // for coyote time
+    private float JumpSoundTimer;
 
     private int GroundLayerMask;
     private int NormalGroundLayerMask;
@@ -99,6 +100,7 @@ public class PlayerMovement : MonoBehaviour
         IcyGroundLayerMask = LayerMask.GetMask("Icy Ground");
 
         IsAlive = true;
+        JumpSoundTimer = 0.0f;
     }
 
     // Update is called once per frame
@@ -184,6 +186,7 @@ public class PlayerMovement : MonoBehaviour
         var origYVel = PlayerRigidbody.velocity.y;
         var newXVel = PlayerRigidbody.velocity.x;
         var newYVel = origYVel;
+        JumpSoundTimer += Time.deltaTime;
         if (MovementState == TMovementState.JUMPING)
         {
             if (ContactState == TContactState.AIRBORNE)
@@ -192,7 +195,11 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                PlayerAudio.PlayOneShot(JumpSound);
+                if (JumpSoundTimer > 0.3f)
+                {
+                    JumpSoundTimer = 0.0f;
+                    PlayerAudio.PlayOneShot(JumpSound);
+                }
                 switch (ContactState)
                 {
                     case TContactState.GROUNDED:
