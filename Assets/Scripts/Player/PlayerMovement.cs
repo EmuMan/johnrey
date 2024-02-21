@@ -64,6 +64,7 @@ public class PlayerMovement : MonoBehaviour
     public TGroundType GroundType { get; private set; }
 
     private Rigidbody2D PlayerRigidbody;
+    private PlayerShoot ShootingController;
     private float LastHorizontalInput;
     private float JumpTimer;
     private bool JumpPressedLastUpdate;
@@ -78,6 +79,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         PlayerRigidbody = GetComponent<Rigidbody2D>();
+        ShootingController = GetComponent<PlayerShoot>();
         LastHorizontalInput = 0.0f;
         InputDirection = TInputDirection.NONE;
         JumpTimer = 0.0f;
@@ -109,7 +111,7 @@ public class PlayerMovement : MonoBehaviour
             if (hInput > LastHorizontalInput || hInput == 1.0f)
             {
                 InputDirection = TInputDirection.RIGHT;
-                FacingDirection = TFacingDirection.RIGHT;
+                SetFacingDirection(TFacingDirection.RIGHT);
             }
             else
             {
@@ -121,7 +123,7 @@ public class PlayerMovement : MonoBehaviour
             if (hInput < LastHorizontalInput || hInput == -1.0f)
             {
                 InputDirection = TInputDirection.LEFT;
-                FacingDirection = TFacingDirection.LEFT;
+                SetFacingDirection(TFacingDirection.LEFT);
             }
             else
             {
@@ -247,6 +249,18 @@ public class PlayerMovement : MonoBehaviour
 
         if (groundCollision)
         {
+            // if was not grounded the frame before
+            if (ContactState != TContactState.GROUNDED)
+            {
+                if (PlayerRigidbody.velocity.x > 0.0)
+                {
+                    SetFacingDirection(TFacingDirection.RIGHT);
+                }
+                else
+                {
+                    SetFacingDirection(TFacingDirection.LEFT);
+                }
+            }
             ContactState = TContactState.GROUNDED;
             TimeSinceLastGrounded = 0.0f;
         }
@@ -315,6 +329,14 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             MovementState = TMovementState.FALLING;
+        }
+    }
+
+    public void SetFacingDirection(TFacingDirection newDirection, bool overrideAiming = false)
+    {
+        if (overrideAiming || ShootingController.BowState == PlayerShoot.TBowState.LOOSE)
+        {
+            FacingDirection = newDirection;
         }
     }
 }

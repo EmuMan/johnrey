@@ -2021,6 +2021,11 @@ PolygonCollider2D:
       - {x: 9.993369, y: 12.214922}
       - {x: 10.007842, y: 12.214922}
   m_UseDelaunayMesh: 0
+--- !u!20 &163917547 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 8333188261137866300, guid: 17761605694e34c4f9f69d232ac6d786, type: 3}
+  m_PrefabInstance: {fileID: 1229180168}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &346619933
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2503,6 +2508,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: John
       objectReference: {fileID: 0}
+    - target: {fileID: 3214510484558168174, guid: dab6799c958bc9345a161b23b7c640d9, type: 3}
+      propertyPath: MainCamera
+      value: 
+      objectReference: {fileID: 163917547}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

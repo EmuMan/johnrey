@@ -8,6 +8,7 @@ public class PlayerAnimation : MonoBehaviour
     private GameObject PlayerSprite;
     private Animator PlayerAnimator;
     private PlayerMovement MovementController;
+    private PlayerShoot ShootingController;
     private Rigidbody2D PlayerRigidbody;
 
     private float InitialXScale;
@@ -19,6 +20,7 @@ public class PlayerAnimation : MonoBehaviour
         PlayerSprite = transform.GetChild(0).gameObject;
         PlayerAnimator = PlayerSprite.GetComponent<Animator>();
         MovementController = GetComponent<PlayerMovement>();
+        ShootingController = GetComponent<PlayerShoot>();
         PlayerRigidbody = GetComponent<Rigidbody2D>();
         InitialXScale = PlayerSprite.transform.localScale.x;
         TimeSinceLastGrounded = 0.0f;
@@ -67,5 +69,14 @@ public class PlayerAnimation : MonoBehaviour
 
         PlayerAnimator.SetFloat("X-Speed", Mathf.Abs(PlayerRigidbody.velocity.x));
 
+        PlayerAnimator.SetFloat("Aim Angle", ShootingController.AimAngleNormalized);
+
+        var targetBowPull = ShootingController.BowState == PlayerShoot.TBowState.LOOSE ?
+            0.0f : 1.0f;
+        var currentBowPull = PlayerAnimator.GetFloat("Bow Pull");
+        var lerpedBowPull = Mathf.Lerp(currentBowPull, targetBowPull, Time.deltaTime * 10f);
+        PlayerAnimator.SetFloat("Bow Pull", lerpedBowPull);
+        PlayerAnimator.SetLayerWeight(1, lerpedBowPull);
     }
+
 }
