@@ -2083,7 +2083,7 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c36fc2451b6d04ca78eb74cc58eb2054, type: 3}
---- !u!1 &376470253
+--- !u!1 &381384729
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2091,22 +2091,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 376470255}
-  - component: {fileID: 376470254}
+  - component: {fileID: 381384731}
+  - component: {fileID: 381384730}
   m_Layer: 0
-  m_Name: cave
+  m_Name: Cave Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!212 &376470254
+--- !u!212 &381384730
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 376470253}
+  m_GameObject: {fileID: 381384729}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -2141,29 +2141,29 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: eff22c70006c34f00bd69416d5f7e9b1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 81b4ab57b903a554199ed8301ef707df, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 70.097115, y: 46.72}
+  m_Size: {x: 38.399998, y: 38.399998}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!4 &376470255
+--- !u!4 &381384731
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 376470253}
+  m_GameObject: {fileID: 381384729}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.6029, y: -0.0591, z: 20}
-  m_LocalScale: {x: 0.5826507, y: 0.5863983, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0.25079423, y: 2.97, z: 10}
+  m_LocalScale: {x: 0.79, y: 0.79, z: 0.79}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2229,7 +2229,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6618196939873390643, guid: 5ae49cdc81d783942be05c8c153f3ef9, type: 3}
       propertyPath: SceneIndex
-      value: 0
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2412,7 +2412,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6618196939873390643, guid: 5ae49cdc81d783942be05c8c153f3ef9, type: 3}
       propertyPath: SceneIndex
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2546,7 +2546,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6618196939873390643, guid: 5ae49cdc81d783942be05c8c153f3ef9, type: 3}
       propertyPath: SceneIndex
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2740,7 +2740,6 @@ SceneRoots:
   - {fileID: 1229180168}
   - {fileID: 61361105}
   - {fileID: 2027871284}
-  - {fileID: 376470255}
   - {fileID: 1881009447}
   - {fileID: 753449295}
   - {fileID: 1811335261}
@@ -2749,3 +2748,4 @@ SceneRoots:
   - {fileID: 1131156964}
   - {fileID: 1287501729}
   - {fileID: 419750278}
+  - {fileID: 381384731}
