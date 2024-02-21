@@ -20,7 +20,8 @@ public class ProjectileCollision : MonoBehaviour
             Destroy(gameObject);
         }
         else {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            var johnMovementController = collision.gameObject.GetComponent<PlayerMovement>();
+            johnMovementController.KillPlayer();
         }
     }
 }

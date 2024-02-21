@@ -7,10 +7,15 @@ public class Arrow : MonoBehaviour
 {
 
     Rigidbody2D rb;
+    public AudioClip ArrowHitSound;
+
+    private AudioSource ArrowAudio;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        ArrowAudio = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -29,8 +34,14 @@ public class Arrow : MonoBehaviour
             Destroy(gameObject);
         }
         else {
+            ArrowAudio.PlayOneShot(ArrowHitSound);
             Destroy(collision.gameObject);
-            Destroy(gameObject);
+            StartCoroutine(WaitThenDestroy());
         }
+    }
+
+    private IEnumerator WaitThenDestroy()
+    {
+        yield return new WaitForSeconds(2.0f);
     }
 }

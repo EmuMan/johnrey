@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -57,14 +58,20 @@ public class PlayerMovement : MonoBehaviour
     public Collider2D LeftCollider;
     public Collider2D RightCollider;
 
+    public AudioClip DeathSound;
+    public AudioClip JumpSound;
+    public AudioClip ShootSound;
+
     public TContactState ContactState { get; private set; }
     public TMovementState MovementState { get; private set; }
     public TInputDirection InputDirection { get; private set; }
     public TFacingDirection FacingDirection { get; private set; }
     public TGroundType GroundType { get; private set; }
+    public bool IsAlive { get; private set; }
 
     private Rigidbody2D PlayerRigidbody;
     private PlayerShoot ShootingController;
+    private AudioSource PlayerAudio;
     private float LastHorizontalInput;
     private float JumpTimer;
     private bool JumpPressedLastUpdate;
@@ -80,6 +87,7 @@ public class PlayerMovement : MonoBehaviour
     {
         PlayerRigidbody = GetComponent<Rigidbody2D>();
         ShootingController = GetComponent<PlayerShoot>();
+        PlayerAudio = GetComponent<AudioSource>();
         LastHorizontalInput = 0.0f;
         InputDirection = TInputDirection.NONE;
         JumpTimer = 0.0f;
@@ -89,11 +97,17 @@ public class PlayerMovement : MonoBehaviour
         GroundLayerMask = LayerMask.GetMask("Icy Ground", "Normal Ground");
         NormalGroundLayerMask = LayerMask.GetMask("Normal Ground");
         IcyGroundLayerMask = LayerMask.GetMask("Icy Ground");
+
+        IsAlive = true;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!IsAlive)
+        {
+            return;
+        }
         // these calls have to happen in this order due to dependency
         CalculateInputDirection();
         CalculateContactState();
@@ -178,6 +192,7 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
+                PlayerAudio.PlayOneShot(JumpSound);
                 switch (ContactState)
                 {
                     case TContactState.GROUNDED:
@@ -338,5 +353,25 @@ public class PlayerMovement : MonoBehaviour
         {
             FacingDirection = newDirection;
         }
+    }
+
+    public void KillPlayer()
+    {
+        if (!IsAlive)
+        {
+            return;
+        }
+        IsAlive = false;
+
+        PlayerAudio.PlayOneShot(DeathSound);
+
+        StartCoroutine(ResetAfterDelay());
+    }
+
+    private IEnumerator ResetAfterDelay()
+    {
+        var currentScene = SceneManager.GetActiveScene().buildIndex;
+        yield return new WaitForSeconds(3.0f);
+        SceneManager.LoadScene(currentScene);
     }
 }

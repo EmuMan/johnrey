@@ -19,11 +19,13 @@ public class PlayerShoot : MonoBehaviour
     public float AimAngleNormalized { get; private set; }
 
     private PlayerMovement MovementController;
+    private AudioSource PlayerAudio;
     private TBowState LastBowState;
 
     private void Start()
     {
         MovementController = GetComponent<PlayerMovement>();
+        PlayerAudio = GetComponent<AudioSource>();
         LastBowState = TBowState.LOOSE;
     }
 
@@ -51,6 +53,7 @@ public class PlayerShoot : MonoBehaviour
         GameObject arrowInstance = Instantiate(arrow, shotPoint.position, rotation);
         Rigidbody2D rb = arrowInstance.GetComponent<Rigidbody2D>();
         rb.velocity = rotation * Vector3.up * firePower;
+        PlayerAudio.PlayOneShot(MovementController.ShootSound);
     }
 
     public void UpdateAimAngle()

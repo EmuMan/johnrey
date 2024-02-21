@@ -14,6 +14,8 @@ public class PlayerAnimation : MonoBehaviour
     private float InitialXScale;
     private float TimeSinceLastGrounded;
 
+    private float DeathRotation;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -24,13 +26,22 @@ public class PlayerAnimation : MonoBehaviour
         PlayerRigidbody = GetComponent<Rigidbody2D>();
         InitialXScale = PlayerSprite.transform.localScale.x;
         TimeSinceLastGrounded = 0.0f;
+        DeathRotation = 0.0f;
     }
 
     // Update is called once per frame
     void Update()
     {
-        SetCharacterDirection();
-        UpdateAnimatorParameters();
+        if (MovementController.IsAlive)
+        {
+            SetCharacterDirection();
+            UpdateAnimatorParameters();
+        }
+        else
+        {
+            ResetAnimatorParameters();
+            PerformDeathAnimation();
+        }
     }
 
     void SetCharacterDirection()
@@ -79,4 +90,20 @@ public class PlayerAnimation : MonoBehaviour
         PlayerAnimator.SetLayerWeight(1, lerpedBowPull);
     }
 
+    void ResetAnimatorParameters()
+    {
+        PlayerAnimator.SetBool("Is Airborne", false);
+        PlayerAnimator.SetBool("Is On Wall", false);
+        PlayerAnimator.SetFloat("X-Speed", 0);
+        PlayerAnimator.SetFloat("Bow Pull", 0f);
+        PlayerAnimator.SetLayerWeight(1, 0f);
+    }
+
+    void PerformDeathAnimation()
+    {
+        DeathRotation += Time.deltaTime * 1000f;
+        PlayerSprite.transform.localRotation = Quaternion.Euler(new(
+            0f, 0f, DeathRotation));
+        PlayerSprite.transform.position += new Vector3(0f, -4f * Time.deltaTime);
+    }
 }
