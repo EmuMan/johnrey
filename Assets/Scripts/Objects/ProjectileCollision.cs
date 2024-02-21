@@ -20,7 +20,7 @@ public class ProjectileCollision : MonoBehaviour
             Destroy(gameObject);
         }
         else {
-            SceneManager.LoadScene(3);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 }
