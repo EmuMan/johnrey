@@ -65,7 +65,6 @@ public class PlayerShoot : MonoBehaviour
         {
             var newFacing = mousePos.x < origin.x ?
                 PlayerMovement.TFacingDirection.LEFT : PlayerMovement.TFacingDirection.RIGHT;
-            Debug.Log($"newFacing: {newFacing}, angle: {angle}");
             MovementController.SetFacingDirection(newFacing, overrideAiming: true);
         }
         AimAngleNormalized = angle / 180f;
