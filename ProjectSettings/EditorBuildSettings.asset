@@ -12,9 +12,18 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
+    path: Assets/Scenes/Beginner Level.unity
+    guid: 616d3c6136fb09e4097ed9af422a3d21
+  - enabled: 1
     path: Assets/Scenes/Ice Level.unity
     guid: 089275c1ca780470ba70400a68aff169
   - enabled: 1
     path: Assets/Scenes/Cave Level.unity
     guid: ac02aa12b472c463695f1ef10465fa73
+  - enabled: 1
+    path: Assets/Scenes/Sand Level.unity
+    guid: ce24568000bac47c39680412428b9a51
+  - enabled: 1
+    path: Assets/Scenes/End Level.unity
+    guid: b6ad1463f3c3e3c4582341421750fc72
   m_configObjects: {}
